@@ -67,7 +67,9 @@ public class Main {
             for(int j = 0; j < batches.size(); j++){
                 if(i!=j){
                     if(!batches.get(i).intersects(batches.get(j))){
-                        indices.add(j);
+                        for(int k = 0; k < indices.size(); k++){
+                            if(!batches.get(indices.get(k)).intersects(batches.get(j))) indices.add(j);
+                        }
                     }
                 }
             }
@@ -76,6 +78,9 @@ public class Main {
                     System.out.println(batches.get(k).toString());
                 }
                 return indices;
+            }
+            if(indices.size() > 2){
+                System.out.println(indices.size());
             }
             indices.clear();
         }
