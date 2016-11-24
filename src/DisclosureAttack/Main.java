@@ -23,23 +23,26 @@ public class Main {
         }
         users[amountUsers - 1] = new User(amountUsers - 1, getRecievers(true), aliceFreq, random);
         System.out.println("System has " + amountUsers + " users. Alice sends messages to " + aliceAmountRecs + " other users.");
-        long t1;
+        long t1, t2 = System.currentTimeMillis();
+        int mailsSent = 0;
         boolean aliceSent = false;
         BitSet batch = new BitSet(amountUsers);
         ArrayList<BitSet> batches = new ArrayList<>();
-        while (mutualyDisjoint(batches, aliceAmountRecs).isEmpty()) {
+        while (mutuallyDisjoint(batches, aliceAmountRecs).isEmpty()) {
             t1 = System.currentTimeMillis();
             while (System.currentTimeMillis() < (t1 + 1)) {
                 for (int i = 0; i < amountUsers - 1; i++) {
                     int recID = users[i].message();
                     if (recID != -1) {
                         batch.set(recID);
+                        mailsSent++;
                     }
                 }
                 int aliceRec = users[amountUsers - 1].message();
                 if (aliceRec != -1) {
                     batch.set(aliceRec);
                     aliceSent = true;
+                    mailsSent++;
                 }
             }
             if(aliceSent){
@@ -47,6 +50,10 @@ public class Main {
             }
             aliceSent = false;
             batch = new BitSet(amountUsers);
+            if (System.currentTimeMillis() > (t2+3000)){
+                System.out.println("Mails sent: " + mailsSent);
+                t2=System.currentTimeMillis();
+            }
         }
     }
 
@@ -60,7 +67,7 @@ public class Main {
         return rec;
     }
 
-    public static ArrayList<Integer> mutualyDisjoint(ArrayList<BitSet> batches, int m){
+    public static ArrayList<Integer> mutuallyDisjoint(ArrayList<BitSet> batches, int m){
         ArrayList<Integer> indices = new ArrayList<>();
         for(int i= 0; i < batches.size(); i++){
             indices.add(i);
@@ -78,9 +85,6 @@ public class Main {
                     System.out.println(batches.get(k).toString());
                 }
                 return indices;
-            }
-            if(indices.size() > 2){
-                System.out.println(indices.size());
             }
             indices.clear();
         }
