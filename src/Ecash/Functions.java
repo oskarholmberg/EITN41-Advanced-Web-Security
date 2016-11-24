@@ -1,8 +1,6 @@
 package Ecash;
 
-/**
- * Created by erik on 14/11/16.
- */
+
 public class Functions {
 
     public static final int MODN = 37*53;

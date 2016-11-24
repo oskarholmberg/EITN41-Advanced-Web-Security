@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.SplittableRandom;
 
-/**
- * Created by erik on 14/11/16.
- */
+
 public class Alice {
     private int[][] quads;
     private int[][] xyHashes;
