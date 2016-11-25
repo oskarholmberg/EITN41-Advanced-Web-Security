@@ -54,15 +54,12 @@ public class Main {
                     batches.add(batch);
                 } else if (stage==2){
                     batches = checkExclusion(mdBatches, batch);
-                    if (!batches.isEmpty()){
-                        mdBatches = batches;
-                        if (checkLengths(mdBatches)){
-                            stage=3;
-                        }
+                    if (checkLengths(mdBatches)){
+                        stage=3;
                     }
                 }
                 if (System.currentTimeMillis() > (t2+3000)){
-                    System.out.println("Mails sent: " + mailsSent + " snapshot batch: " + batch.toString());
+                    System.out.println("Mails sent: " + mailsSent);
                     t2=System.currentTimeMillis();
                     for(BitSet b : mdBatches){
                         System.out.print(b.cardinality() + " ");
@@ -72,22 +69,18 @@ public class Main {
             }
             aliceSent = false;
             batch = new BitSet(amountUsers);
-
             counter++;
             if (counter > 100 && stage==1){
                 ArrayList<Integer> indices = mutuallyDisjoint(batches, aliceAmountRecs);
                 if (!indices.isEmpty()) {
                     stage = 2;
                     mdBatches.addAll(indices.stream().map(batches::get).collect(Collectors.toList()));
-                    for (BitSet b : mdBatches){
-                        System.out.print(b.cardinality() + " ");
-                        System.out.println();
-                    }
                 }
                 counter=0;
             }
         }
         System.out.println("Done! Total amount of mails sent: " + mailsSent);
+        System.out.println(mdBatches);
     }
 
     public static boolean checkLengths(ArrayList<BitSet> mdBatches){
@@ -103,19 +96,18 @@ public class Main {
         boolean andIt = true;
         for (int i = 0; i < mdBatches.size(); i++){
             if (mdBatches.get(i).intersects(batch)) {
-                for (int j = 0; j < mdBatches.size(); i++) {
+                for (int j = 0; j < mdBatches.size(); j++) {
                     if (i != j && mdBatches.get(j).intersects(batch))
                         andIt = false;
                 }
+                if (andIt){
+                    mdBatches.get(i).and(batch);
+                    System.out.println(batch);
+                    return mdBatches;
+                }
+                andIt = true;
             }
-            if (andIt){
-                mdBatches.get(i).and(batch);
-                System.out.println(batch);
-                return mdBatches;
-            }
-            andIt = true;
         }
-        mdBatches.clear();
         return mdBatches;
     }
 
