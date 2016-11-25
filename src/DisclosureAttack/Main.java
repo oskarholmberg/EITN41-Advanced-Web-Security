@@ -80,7 +80,11 @@ public class Main {
             }
         }
         System.out.println("Done! Total amount of mails sent: " + mailsSent);
-        System.out.println(mdBatches);
+        System.out.println("Hacked IDs: " + mdBatches + " What alice actually had:");
+        int[] aliceRealRec = users[amountUsers-1].comPart;
+        for (int i = 0; i < aliceRealRec.length; i++){
+            System.out.print(aliceRealRec[i] + " ");
+        }
     }
 
     public static boolean checkLengths(ArrayList<BitSet> mdBatches){
@@ -102,7 +106,6 @@ public class Main {
                 }
                 if (andIt){
                     mdBatches.get(i).and(batch);
-                    System.out.println(batch);
                     return mdBatches;
                 }
                 andIt = true;

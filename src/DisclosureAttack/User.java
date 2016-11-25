@@ -8,7 +8,7 @@ import java.util.SplittableRandom;
 public class User {
 
     private SplittableRandom random;
-    private int[] comPart;
+    public int[] comPart;
     private int id, freq;
 
     public User(int id, int[] comPart, int freq, SplittableRandom random){
