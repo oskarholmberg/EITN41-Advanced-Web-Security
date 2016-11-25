@@ -20,7 +20,7 @@ public class User {
 
     public int message(){
         if(random.nextInt(1, freq) == 1){
-            return comPart[random.nextInt(0, comPart.length - 1)];
+            return comPart[random.nextInt(0, comPart.length)];
         }
         return -1;
     }
