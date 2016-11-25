@@ -23,7 +23,7 @@ public class Main {
         ArrayList<BitSet> mdBatches = new ArrayList<>();
         User[] users = new User[amountUsers];
         for (int i = 0; i < amountUsers - 1; i++) {
-            users[i] = new User(i, getRecievers(false), random.nextInt(1000, 1500), random);
+            users[i] = new User(i, getRecievers(false), random.nextInt(6000, 12000), random);
         }
         users[amountUsers - 1] = new User(amountUsers - 1, getRecievers(true), aliceFreq, random);
         System.out.println("System has " + amountUsers + " users. Alice sends messages to " + aliceAmountRecs + " other users.");
