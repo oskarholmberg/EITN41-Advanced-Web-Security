@@ -20,12 +20,12 @@ public class Main {
         ArrayList<BitSet> mdBatches = new ArrayList<>();
         User[] users = new User[amountUsers];
         for (int i = 0; i < amountUsers - 1; i++) {
-            users[i] = new User(i, getRecievers(false), random.nextInt(6000, 12000), random);
+            users[i] = new User(i, getRecievers(false), random.nextInt(500, 3000), random);
         }
         users[amountUsers - 1] = new User(amountUsers - 1, getRecievers(true), aliceFreq, random);
         System.out.println("System has " + amountUsers + " users. Alice sends messages to " + aliceAmountRecs + " other users.");
-        long t1, t2 = System.currentTimeMillis();
-        int mailsSent = 0, counter = 0, stage=1, amountBatches = 0;
+        long t1, t2 = System.currentTimeMillis(), t3 = System.currentTimeMillis();
+        int mailsSent = 0, counter = 0, stage=1, amountBatches = 0, loops = 0;
         boolean aliceSent = false;
         BitSet batch = new BitSet(amountUsers);
         ArrayList<BitSet> batches = new ArrayList<>();
@@ -45,6 +45,7 @@ public class Main {
                     aliceSent = true;
                     mailsSent++;
                 }
+                loops++;
             }
             amountBatches++;
             if(aliceSent){
@@ -78,11 +79,13 @@ public class Main {
             }
         }
         System.out.println("Done! Total amount of mails sent: " + mailsSent + " avarage amount mails per batch " + mailsSent/amountBatches);
+        System.out.println("Avarage amount of loops per \"hour\": " + loops/amountBatches);
         System.out.println("Hacked IDs: " + mdBatches + " What alice actually had:");
         int[] aliceRealRec = users[amountUsers-1].comPart;
         for (int anAliceRealRec : aliceRealRec) {
             System.out.print(anAliceRealRec + " ");
         }
+        System.out.println("Simulation time: " + (System.currentTimeMillis()-t3) + "ms.");
     }
 
     private static boolean checkLengths(ArrayList<BitSet> mdBatches){
