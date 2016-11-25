@@ -60,10 +60,6 @@ public class Main {
                 if (System.currentTimeMillis() > (t2+3000)){
                     System.out.println("Mails sent: " + mailsSent);
                     t2=System.currentTimeMillis();
-                    for(BitSet b : mdBatches){
-                        System.out.print(b.cardinality() + " ");
-                    }
-                    System.out.println();
                 }
             }
             aliceSent = false;
