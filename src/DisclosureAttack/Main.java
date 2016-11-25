@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 public class Main {
     private static SplittableRandom random = new SplittableRandom();
-    private static int amountUsers, aliceAmountRecs;
+    private static int amountUsers, aliceAmountRecs, batchSize = 30;
 
 
     public static void main(String[] args) {
@@ -20,30 +20,32 @@ public class Main {
         ArrayList<BitSet> mdBatches = new ArrayList<>();
         User[] users = new User[amountUsers];
         for (int i = 0; i < amountUsers - 1; i++) {
-            users[i] = new User(i, getRecievers(false), random.nextInt(500, 3000), random);
+            users[i] = new User(i, getRecievers(false), random.nextInt(500, 6000), random);
         }
         users[amountUsers - 1] = new User(amountUsers - 1, getRecievers(true), aliceFreq, random);
         System.out.println("System has " + amountUsers + " users. Alice sends messages to " + aliceAmountRecs + " other users.");
-        long t1, t2 = System.currentTimeMillis(), t3 = System.currentTimeMillis();
+        long t2 = System.currentTimeMillis(), t3 = System.currentTimeMillis();
         int mailsSent = 0, counter = 0, stage=1, amountBatches = 0, loops = 0;
         boolean aliceSent = false;
         BitSet batch = new BitSet(amountUsers);
         ArrayList<BitSet> batches = new ArrayList<>();
         while (stage!=3) {
-            t1 = System.currentTimeMillis();
-            while (System.currentTimeMillis() < (t1 + 1)) {
+            while (batch.cardinality() < batchSize) {
+                int aliceRec = users[amountUsers - 1].message();
+                if (aliceRec != -1 && batch.cardinality() < batchSize) {
+                    batch.set(aliceRec);
+                    aliceSent = true;
+                    mailsSent++;
+                }
                 for (int i = 0; i < amountUsers - 1; i++) {
                     int recID = users[i].message();
                     if (recID != -1) {
                         batch.set(recID);
                         mailsSent++;
                     }
-                }
-                int aliceRec = users[amountUsers - 1].message();
-                if (aliceRec != -1) {
-                    batch.set(aliceRec);
-                    aliceSent = true;
-                    mailsSent++;
+                    if(batch.cardinality() >= batchSize){
+                        break;
+                    }
                 }
                 loops++;
             }
@@ -60,10 +62,6 @@ public class Main {
                 if (System.currentTimeMillis() > (t2+3000)){
                     System.out.println("Mails sent: " + mailsSent);
                     t2=System.currentTimeMillis();
-                    for(BitSet b : mdBatches){
-                        System.out.print(b.cardinality() + " ");
-                    }
-                    System.out.println();
                 }
             }
             aliceSent = false;
@@ -78,10 +76,10 @@ public class Main {
                 counter=0;
             }
         }
-        System.out.println("Done! Total amount of mails sent: " + mailsSent + " avarage amount mails per batch " + mailsSent/amountBatches);
-        System.out.println("Avarage amount of loops per \"hour\": " + loops/amountBatches);
+        System.out.println("Done! Total amount of mails sent: " + mailsSent);
+        System.out.println("Average amount of loops per \"3-hour\": " + loops/amountBatches);
         System.out.println("Hacked IDs: " + mdBatches);
-        System.out.print(" What alice actually had:");
+        System.out.print(" What alice actually had: ");
         int[] aliceRealRec = users[amountUsers-1].comPart;
         for (int anAliceRealRec : aliceRealRec) {
             System.out.print(anAliceRealRec + " ");
@@ -117,7 +115,7 @@ public class Main {
     }
 
     private static int[] getRecievers(boolean alice) {
-        int length = random.nextInt(5, 10);
+        int length = 5;
         if (alice) length = aliceAmountRecs;
         int[] rec = new int[length];
         for (int i = 0; i < rec.length; i++) {
