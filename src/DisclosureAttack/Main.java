@@ -80,7 +80,8 @@ public class Main {
         }
         System.out.println("Done! Total amount of mails sent: " + mailsSent + " avarage amount mails per batch " + mailsSent/amountBatches);
         System.out.println("Avarage amount of loops per \"hour\": " + loops/amountBatches);
-        System.out.println("Hacked IDs: " + mdBatches + " What alice actually had:");
+        System.out.println("Hacked IDs: " + mdBatches);
+        System.out.print(" What alice actually had:");
         int[] aliceRealRec = users[amountUsers-1].comPart;
         for (int anAliceRealRec : aliceRealRec) {
             System.out.print(anAliceRealRec + " ");
