@@ -6,9 +6,6 @@ import java.util.BitSet;
 import java.util.SplittableRandom;
 import java.util.stream.Collectors;
 
-/**
- * Created by oskar on 2016-11-24.
- */
 public class Main {
     private static SplittableRandom random = new SplittableRandom();
     private static int amountUsers, aliceAmountRecs;
@@ -28,7 +25,7 @@ public class Main {
         users[amountUsers - 1] = new User(amountUsers - 1, getRecievers(true), aliceFreq, random);
         System.out.println("System has " + amountUsers + " users. Alice sends messages to " + aliceAmountRecs + " other users.");
         long t1, t2 = System.currentTimeMillis();
-        int mailsSent = 0, counter = 0, stage=1;
+        int mailsSent = 0, counter = 0, stage=1, amountBatches = 0;
         boolean aliceSent = false;
         BitSet batch = new BitSet(amountUsers);
         ArrayList<BitSet> batches = new ArrayList<>();
@@ -49,10 +46,11 @@ public class Main {
                     mailsSent++;
                 }
             }
+            amountBatches++;
             if(aliceSent){
                 if (stage==1){
                     batches.add(batch);
-                } else if (stage==2){
+                } else {
                     batches = checkExclusion(mdBatches, batch);
                     if (checkLengths(mdBatches)){
                         stage=3;
@@ -79,15 +77,15 @@ public class Main {
                 counter=0;
             }
         }
-        System.out.println("Done! Total amount of mails sent: " + mailsSent);
+        System.out.println("Done! Total amount of mails sent: " + mailsSent + " avarage amount mails per batch " + mailsSent/amountBatches);
         System.out.println("Hacked IDs: " + mdBatches + " What alice actually had:");
         int[] aliceRealRec = users[amountUsers-1].comPart;
-        for (int i = 0; i < aliceRealRec.length; i++){
-            System.out.print(aliceRealRec[i] + " ");
+        for (int anAliceRealRec : aliceRealRec) {
+            System.out.print(anAliceRealRec + " ");
         }
     }
 
-    public static boolean checkLengths(ArrayList<BitSet> mdBatches){
+    private static boolean checkLengths(ArrayList<BitSet> mdBatches){
         for (BitSet b : mdBatches){
             if (b.cardinality()>1){
                 return false;
@@ -96,7 +94,7 @@ public class Main {
         return true;
     }
 
-    public static ArrayList<BitSet> checkExclusion(ArrayList<BitSet> mdBatches, BitSet batch){
+    private static ArrayList<BitSet> checkExclusion(ArrayList<BitSet> mdBatches, BitSet batch){
         boolean andIt = true;
         for (int i = 0; i < mdBatches.size(); i++){
             if (mdBatches.get(i).intersects(batch)) {
@@ -114,7 +112,7 @@ public class Main {
         return mdBatches;
     }
 
-    public static int[] getRecievers(boolean alice) {
+    private static int[] getRecievers(boolean alice) {
         int length = random.nextInt(5, 10);
         if (alice) length = aliceAmountRecs;
         int[] rec = new int[length];
@@ -124,7 +122,7 @@ public class Main {
         return rec;
     }
 
-    public static ArrayList<Integer> mutuallyDisjoint(ArrayList<BitSet> batches, int m){
+    private static ArrayList<Integer> mutuallyDisjoint(ArrayList<BitSet> batches, int m){
         ArrayList<Integer> indices = new ArrayList<>();
         boolean disjoint = true;
         for(int i= 0; i < batches.size(); i++){
@@ -142,9 +140,6 @@ public class Main {
                 }
             }
             if(indices.size() >= m){
-                for(int k : indices){
-                    System.out.println(batches.get(k).toString());
-                }
                 return indices;
             }
             indices.clear();
