@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 public class Main {
     private static SplittableRandom random = new SplittableRandom();
-    private static int amountUsers, aliceAmountRecs, batchSize = 30;
+    private static int amountUsers, aliceAmountRecs, batchSize = 50;
 
 
     public static void main(String[] args) {
@@ -20,7 +20,7 @@ public class Main {
         ArrayList<BitSet> mdBatches = new ArrayList<>();
         User[] users = new User[amountUsers];
         for (int i = 0; i < amountUsers - 1; i++) {
-            users[i] = new User(i, getRecievers(false), random.nextInt(500, 6000), random);
+            users[i] = new User(i, getRecievers(false), random.nextInt(50, 60), random);
         }
         users[amountUsers - 1] = new User(amountUsers - 1, getRecievers(true), aliceFreq, random);
         System.out.println("System has " + amountUsers + " users. Alice sends messages to " + aliceAmountRecs + " other users.");
@@ -38,7 +38,7 @@ public class Main {
                     mailsSent++;
                 }
                 for (int i = 0; i < amountUsers - 1; i++) {
-                    int recID = users[i].message();
+                    int recID = users[random.nextInt(0, amountUsers-1)].message();
                     if (recID != -1) {
                         batch.set(recID);
                         mailsSent++;

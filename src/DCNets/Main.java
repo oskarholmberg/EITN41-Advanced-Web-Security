@@ -1,10 +1,6 @@
 package DCNets;
 
-import com.sun.org.apache.xpath.internal.SourceTree;
 
-/**
- * Created by oskar on 2016-11-24.
- */
 public class Main {
     public static void main(String[] args) {
         if (args.length == 6) {
