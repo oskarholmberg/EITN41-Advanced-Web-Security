@@ -12,28 +12,29 @@ import java.util.SplittableRandom;
  * Created by erik on 30/11/16.
  */
 public class Main {
-    static int g, n, lambda;
-    static double mu;
+    static BigInteger g, n, lambda, neg1, mu;
     public static void main(String[] args){
-        int p = Integer.valueOf(args[0]), q = Integer.valueOf(args[1]);
-        g = Integer.valueOf(args[2]);
-        n = p*q;
-        lambda = lcm(p-1, q-1);
-        mu = mmi((int) (L(Math.pow(g, lambda)%Math.pow(n, 2))), n);
+        BigInteger p = new BigInteger(args[0]);
+        BigInteger q = new BigInteger(args[1]);
+        neg1 = new BigInteger("1").negate();
+        g = new BigInteger(args[2]);
+        n = p.multiply(q);
+        lambda = lcm(p.add(neg1), q.add(neg1));
+        mu = (L(g.pow(lambda.intValue()).mod(n.pow(2)))).modInverse(n);
         System.out.println("n: " + n);
         System.out.println("Mu: " + mu);
         System.out.println("Lambda: " + lambda);
         System.out.println("Voting results: " + countVotes("src/files/pailler.txt"));
     }
 
-    public static int countVotes(String fileName){
+    public static BigInteger countVotes(String fileName){
         BufferedReader br;
-        int crypto = 1;
+        BigInteger crypto = new BigInteger("1");
         try {
             br = new BufferedReader(new FileReader(fileName));
             String line = br.readLine();
             while(line!=null){
-                crypto*=Integer.valueOf(line);
+                crypto = crypto.multiply(new BigInteger(line));
                 line=br.readLine();
             }
         } catch (FileNotFoundException e) {
@@ -41,40 +42,22 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("Crypto mod n^2: " + crypto%Math.pow(n, 2));
         System.out.println("Message: " + decrypt(crypto));
-        return (int) ((crypto%Math.pow(n, 2))%n);
-
+        return crypto;
     }
 
-    public static double decrypt(int c){
-        System.out.println("Decrypt " + Math.pow(c, lambda));
-        return (L(Math.pow(c, lambda)%Math.pow(n, 2)));
+    public static BigInteger decrypt(BigInteger c){
+        return (L(c.pow(lambda.intValue()).mod(n.pow(2)))).multiply(mu).mod(n);
     }
 
-    public static int mmi(int x, int n){
-        if(gcd(x, n) == 1) {
-            System.out.println("x: " + x);
-            BigInteger b1 = new BigInteger(Integer.toString(x));
-            BigInteger mod = b1.modInverse(new BigInteger(Integer.toString(n)));
-            return mod.intValue();
+    public static BigInteger lcm(BigInteger a, BigInteger b){
+        if(a.intValue()==0 && b.intValue() == 0){
+            return new BigInteger("0");
         }
-        return -1;
+        return a.multiply(b).divide(a.gcd(b));
     }
 
-    public static int lcm(int a, int b){
-        if(a==0 && b == 0){
-            return 0;
-        }
-        return (a*b)/(gcd(a, b));
-    }
-
-    public static int gcd(int a, int b) {
-        if (b==0) return a;
-        return gcd(b, a % b);
-    }
-
-    public static int L(double x){
-        return (int) Math.round((x-1)/n);
+    public static BigInteger L(BigInteger x){
+        return x.add(neg1.divide(n));
     }
 }
