@@ -74,7 +74,7 @@ public class Main {
         return gcd(b, a % b);
     }
 
-    public static double L(double x){
-        return (x-1)/n;
+    public static int L(double x){
+        return (int) Math.round((x-1)/n);
     }
 }
