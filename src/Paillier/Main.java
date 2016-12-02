@@ -21,20 +21,19 @@ public class Main {
         n = p.multiply(q);
         lambda = lcm(p.add(neg1), q.add(neg1));
         mu = (L(g.pow(lambda.intValue()).mod(n.pow(2)))).modInverse(n);
-        System.out.println("n: " + n);
-        System.out.println("Mu: " + mu);
-        System.out.println("Lambda: " + lambda);
         System.out.println("Voting results: " + countVotes("src/files/pailler.txt"));
     }
 
-    public static BigInteger countVotes(String fileName){
+    public static int countVotes(String fileName){
         BufferedReader br;
         BigInteger crypto = new BigInteger("1");
+        int votes = 0;
         try {
             br = new BufferedReader(new FileReader(fileName));
             String line = br.readLine();
             while(line!=null){
                 crypto = crypto.multiply(new BigInteger(line));
+                votes++;
                 line=br.readLine();
             }
         } catch (FileNotFoundException e) {
@@ -42,8 +41,8 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("Message: " + decrypt(crypto));
-        return crypto;
+        int result = decrypt(crypto).mod(n).intValue();
+        return result > votes ? result-n.intValue() : result;
     }
 
     public static BigInteger decrypt(BigInteger c){
@@ -58,6 +57,6 @@ public class Main {
     }
 
     public static BigInteger L(BigInteger x){
-        return x.add(neg1.divide(n));
+        return x.add(neg1).divide(n);
     }
 }
