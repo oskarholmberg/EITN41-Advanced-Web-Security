@@ -18,7 +18,7 @@ public class Main {
         int[] ji = new int[k];
         int[] fi = new int[k];
 
-        //gather polynomial koefficients
+        //gather polynomial coefficients
         for (int i = 0; i < degree + 1; i++){
             int coeff = Integer.valueOf(args[offset]);
             polynomial[i] = coeff;
