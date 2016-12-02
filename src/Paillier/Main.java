@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.SplittableRandom;
 
@@ -11,24 +12,28 @@ import java.util.SplittableRandom;
  * Created by erik on 30/11/16.
  */
 public class Main {
-    static int g, n, r;
+    static int g, n, lambda;
+    static double mu;
     public static void main(String[] args){
         int p = Integer.valueOf(args[0]), q = Integer.valueOf(args[1]);
         g = Integer.valueOf(args[2]);
-        SplittableRandom random = new SplittableRandom();
         n = p*q;
-        r = random.nextInt(1, 1000);
+        lambda = lcm(p-1, q-1);
+        mu = mmi((int) (L(Math.pow(g, lambda)%Math.pow(n, 2))), n);
+        System.out.println("n: " + n);
+        System.out.println("Mu: " + mu);
+        System.out.println("Lambda: " + lambda);
         System.out.println("Voting results: " + countVotes("src/files/pailler.txt"));
     }
 
     public static int countVotes(String fileName){
         BufferedReader br;
-        int cryptoSum = 1;
+        int crypto = 1;
         try {
             br = new BufferedReader(new FileReader(fileName));
             String line = br.readLine();
             while(line!=null){
-                cryptoSum*=Integer.valueOf(line);
+                crypto*=Integer.valueOf(line);
                 line=br.readLine();
             }
         } catch (FileNotFoundException e) {
@@ -36,46 +41,40 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("CryptoSum=" + cryptoSum);
-        System.out.println("Vtot=" + cryptoSum%Math.pow(n, 2));
-        System.out.println("test=" + 52 % n);
-        return (int) ((cryptoSum%Math.pow(n, 2))%n);
+        System.out.println("Crypto mod n^2: " + crypto%Math.pow(n, 2));
+        System.out.println("Message: " + decrypt(crypto));
+        return (int) ((crypto%Math.pow(n, 2))%n);
 
     }
 
-    public static int generateSinglePrime(int lowerBound, int upperBound){
-        SplittableRandom random = new SplittableRandom();
-        ArrayList<Integer> primes = generatePrimes(lowerBound, upperBound);
-        return primes.get(random.nextInt(0, primes.size()));
+    public static double decrypt(int c){
+        System.out.println("Decrypt " + Math.pow(c, lambda));
+        return (L(Math.pow(c, lambda)%Math.pow(n, 2)));
     }
 
-    public static ArrayList<Integer> generatePrimes(int lowerBound, int upperBound){
-        ArrayList<Integer> list = new ArrayList<>();
-        // fill arraylist
-        for (int i = 1; i <= upperBound; i++){
-            list.add(i);
+    public static int mmi(int x, int n){
+        if(gcd(x, n) == 1) {
+            System.out.println("x: " + x);
+            BigInteger b1 = new BigInteger(Integer.toString(x));
+            BigInteger mod = b1.modInverse(new BigInteger(Integer.toString(n)));
+            return mod.intValue();
         }
-        // remove non-primes
-        int i = 0;
-        boolean prime;
-        while(i < list.size()){
-            int e = 1;
-            prime=true;
-            while(prime && e < i){
-                if (list.get(i)%list.get(e)==0){
-                    list.remove(i);
-                    prime=false;
-                    i--;
-                }
-                e++;
-            }
-            i++;
-        }
+        return -1;
+    }
 
-        //trim lowerbound
-        while(list.get(0)<=lowerBound){
-            list.remove(0);
+    public static int lcm(int a, int b){
+        if(a==0 && b == 0){
+            return 0;
         }
-        return list;
+        return (a*b)/(gcd(a, b));
+    }
+
+    public static int gcd(int a, int b) {
+        if (b==0) return a;
+        return gcd(b, a % b);
+    }
+
+    public static double L(double x){
+        return (x-1)/n;
     }
 }
