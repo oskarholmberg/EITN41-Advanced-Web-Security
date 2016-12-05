@@ -17,7 +17,8 @@ public class Main {
 
     // only input is if the vote was 0 or 1 from start, k-bit length is fix to 16
     public static void main(String[] args){
-        x = Integer.valueOf(args[0]);
+        x = Integer.min(160, Integer.valueOf(args[0]));
+        System.out.println("Truncating to " + x + " bits. Example hash: " + hashFunction(1, nextKString(1200)));
         populate();
         changedCommitment();
         concealBroken();
@@ -30,18 +31,23 @@ public class Main {
                 count++;
             }
         }
-        System.out.println("Binding can be broken at " + count + " places, i.e " + (100*count/combinations)+ " percent of the time.");
+        System.out.println("Binding can be broken at " + count + " places, i.e " + (100*count/combinations)+ "% of the time.");
     }
 
     private static void concealBroken(){
         double count = 0;
+        int min = Integer.MAX_VALUE;
         Iterator itr = v0v1.keySet().iterator();
         while(itr.hasNext()){
-            if(v0v1.get(itr.next()) > 1){
+            String key = (String) itr.next();
+            if(v0v1.get(key) > 1){
                 count++;
             }
+            if(min > v0v1.get(key)){
+                min = v0v1.get(key);
+            }
         }
-        System.out.println("Concealment was broken " + count + " times, i.e " + (1.0/count) + " percent of the time.");
+        System.out.println("Guessing at the easiest target has a " + (100.0/min) + "% chance of success. " + 100*count/Math.pow(2, x) + "% of the hashes are secure.");
     }
 
     private static void populate(){
@@ -85,7 +91,7 @@ public class Main {
             for (byte b : digest){
                 bitHash += String.format("%8s", Integer.toBinaryString(b & 0xFF)).replace(' ', '0');
             }
-            return bitHash.substring(0, Integer.min(x+1, bitHash.length()));
+            return bitHash.substring(0, Integer.min(x, bitHash.length()));
 
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
