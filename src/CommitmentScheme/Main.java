@@ -13,7 +13,7 @@ public class Main {
     private static int x;
     private static int combinations = (int) Math.pow(2, 16);
     private static String[] v0 = new String[combinations], v1 = new String[combinations];
-    private static HashMap<String, Integer> v0v1 = new HashMap<>();
+    private static HashMap<String, int[]> v0v1 = new HashMap<>();
 
     // only input is if the vote was 0 or 1 from start, k-bit length is fix to 16
     public static void main(String[] args){
@@ -40,14 +40,14 @@ public class Main {
         Iterator itr = v0v1.keySet().iterator();
         while(itr.hasNext()){
             String key = (String) itr.next();
-            if(v0v1.get(key) > 1){
+            if(v0v1.get(key)[0] < 1 || v0v1.get(key)[1] < 1){
                 count++;
             }
-            if(min > v0v1.get(key)){
-                min = v0v1.get(key);
+            if(min > (v0v1.get(key)[0] + v0v1.get(key)[1]) ){
+                min = v0v1.get(key)[0] + v0v1.get(key)[1];
             }
         }
-        System.out.println("Guessing at the easiest target has a " + (100.0/min) + "% chance of success. " + 100*count/Math.pow(2, x) + "% of the hashes are secure.");
+        System.out.println("Guessing at the easiest target has a " + (100.0/min) + "% chance of success. " + 100*count/Math.pow(2, x) + "% of the hashes are compromised.");
     }
 
     private static void populate(){
@@ -57,14 +57,18 @@ public class Main {
             v0[i] = h0;
             v1[i] = h1;
             if(!v0v1.containsKey(h0)){
-                v0v1.put(h0, 1);
+                v0v1.put(h0, new int[]{1, 0});
             }else{
-                v0v1.put(h0, v0v1.get(h0)+1);
+                int[] temp = v0v1.get(h0);
+                temp[0]++;
+                v0v1.put(h0, temp);
             }
             if(!v0v1.containsKey(h1)){
-                v0v1.put(h1, 1);
+                v0v1.put(h1, new int[]{0, 1});
             }else{
-                v0v1.put(h1, v0v1.get(h1)+1);
+                int[] temp = v0v1.get(h1);
+                temp[1]++;
+                v0v1.put(h1, temp);
             }
         }
     }
