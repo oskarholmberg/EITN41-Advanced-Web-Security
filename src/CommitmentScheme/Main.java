@@ -63,9 +63,7 @@ public class Main {
     //simple hash function, big primes in order to be able to use longer truncations
     // (the primes are conjured from nothing, probably change them to something more reasonable (read: smaller))
     private static int hashFunction(int v, String kString){
-        int hash = 31;
-        hash = hash * 47 + v;
-        hash = hash * 53 + Math.abs(kString.hashCode());
+        int hash = 53 * Math.abs((kString + v).hashCode());
         return Integer.valueOf(Integer.toString(hash).substring(0, Integer.min(x+1, Integer.toString(hash).length())));
     }
 }
