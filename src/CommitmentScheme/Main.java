@@ -17,7 +17,7 @@ public class Main {
 
         runProbabilities(v);
         String testString = nextKString(134135);
-        System.out.println(hashFunction(v, testString));
+        System.out.println("testString.hashCode()" + testString.hashCode() + " hashed with v: " + hashFunction(v, testString));
     }
 
     // main loop, tests with bit strings from
