@@ -13,11 +13,8 @@ public class Main {
     public static void main(String[] args){
         x = Integer.valueOf(args[0]);
         int v = 1;
-        int k = 16;
-
+        System.out.println("Hash truncated to: " + x + " bits. Example hash: " + hashFunction(v, nextKString(1200)));
         runProbabilities(v);
-        String testString = nextKString(134135);
-        System.out.println("testString.hashCode()" + testString.hashCode() + " hashed with v: " + hashFunction(v, testString));
     }
 
     // main loop, tests with bit strings from
