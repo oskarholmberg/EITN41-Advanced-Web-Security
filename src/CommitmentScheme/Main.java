@@ -65,7 +65,7 @@ public class Main {
     private static int hashFunction(int v, String kString){
         int hash = 31;
         hash = hash * 47 + v;
-        hash = hash * 53 + kString.hashCode();
+        hash = hash * 53 + Math.abs(kString.hashCode());
         return Integer.valueOf(Integer.toString(hash).substring(0, Integer.min(x+1, Integer.toString(hash).length())));
     }
 }
