@@ -36,6 +36,7 @@ public class Main {
                 votes++;
                 line=br.readLine();
             }
+            System.out.println("Crypto: " + crypto);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -46,7 +47,7 @@ public class Main {
     }
 
     public static BigInteger decrypt(BigInteger c){
-        return (L(c.pow(lambda.intValue()).mod(n.pow(2)))).multiply(mu).mod(n);
+        return L(c.modPow(lambda, n.pow(2))).multiply(mu).mod(n);
     }
 
     public static BigInteger lcm(BigInteger a, BigInteger b){
