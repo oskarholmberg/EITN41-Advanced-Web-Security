@@ -38,7 +38,7 @@ public class Main {
             }
 
             int yesVote = hashFunction(1, testKString);
-                int noVote = hashFunction(0, nextKString(i));
+            int noVote = hashFunction(0, nextKString(i));
                 if (yesVote == noVote) {
                     conc++;
                     // this means that the concealment is better
@@ -66,6 +66,6 @@ public class Main {
         int hash = 31;
         hash = hash * 47 + v;
         hash = hash * 53 + kString.hashCode();
-        return Integer.valueOf(Integer.toString(hash).substring(0, x+1));
+        return Integer.valueOf(Integer.toString(hash).substring(0, Integer.min(x+1, Integer.toString(hash).length())));
     }
 }
