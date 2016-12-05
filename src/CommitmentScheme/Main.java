@@ -1,6 +1,8 @@
 package CommitmentScheme;
 
 import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.SplittableRandom;
 
 /**
@@ -13,6 +15,7 @@ public class Main {
     public static void main(String[] args){
         x = Integer.valueOf(args[0]);
         int v = 1;
+        System.out.println("Hash truncated to: " + x + " bits. Example hash: " + hashFunction(v, nextKString(1200)));
         System.out.println("Hash truncated to: " + x + " bits. Example hash: " + hashFunction(v, nextKString(1200)));
         runProbabilities(v);
     }
@@ -36,10 +39,10 @@ public class Main {
 
             String yesVote = hashFunction(1, testKString);
             String noVote = hashFunction(0, nextKString(i));
-                if (yesVote.equals(noVote)) {
-                    conc++;
-                    // this means that the concealment is better
-                    // might need to be tested 2^16^2 times :S
+            if (yesVote.equals(noVote)) {
+                conc++;
+                // this means that the concealment is better
+                // might need to be tested 2^16^2 times :S
             }
 
 
@@ -60,8 +63,21 @@ public class Main {
     //simple hash function, big primes in order to be able to use longer truncations
     // (the primes are conjured from nothing, probably change them to something more reasonable (read: smaller))
     private static String hashFunction(int v, String kString){
-        int hash = 53 * Math.abs((kString + v).hashCode());
-        String s = Integer.toBinaryString(hash);
-        return s.substring(0, Integer.min(x+1, s.length()));
+        MessageDigest sha1;
+        try {
+            sha1 = MessageDigest.getInstance("SHA-1");
+            sha1.update(kString.getBytes());
+            sha1.update(String.valueOf(v).getBytes());
+            byte[] digest = sha1.digest();
+            String bitHash = "";
+            for (byte b : digest){
+                bitHash += String.format("%8s", Integer.toBinaryString(b & 0xFF)).replace(' ', '0');
+            }
+            return bitHash.substring(0, Integer.min(x+1, bitHash.length()));
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 }
