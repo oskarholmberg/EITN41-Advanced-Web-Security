@@ -1,9 +1,9 @@
 package CommitmentScheme;
 
-import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.SplittableRandom;
+import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  * Created by erik on 30/11/16.
@@ -11,44 +11,56 @@ import java.util.SplittableRandom;
 public class Main {
 
     private static int x;
+    private static int combinations = (int) Math.pow(2, 16);
+    private static String[] v0 = new String[combinations], v1 = new String[combinations];
+    private static HashMap<String, Integer> v0v1 = new HashMap<>();
+
     // only input is if the vote was 0 or 1 from start, k-bit length is fix to 16
     public static void main(String[] args){
         x = Integer.valueOf(args[0]);
-        int v = 1;
-        System.out.println("Hash truncated to: " + x + " bits. Example hash: " + hashFunction(v, nextKString(1200)));
-        System.out.println("Hash truncated to: " + x + " bits. Example hash: " + hashFunction(v, nextKString(1200)));
-        runProbabilities(v);
+        populate();
+        changedCommitment();
+        concealBroken();
     }
 
-    // main loop, tests with bit strings from
-    // 0000000000000000 till 1111111111111111
-    private static void runProbabilities(int v){
-        int roofValue = (int) Math.pow(2, 16);
-        double bind = 0.0, conc = 0.0;
-
-        for (int i = 0; i < roofValue; i++){
-            String testKString = nextKString(i);
-
-            String correctVote = hashFunction(v, testKString);
-            // with vote 1-v (0 if 1, 1 if 0)
-            String changeVote = hashFunction((1-v), testKString);
-            if (correctVote.equals(changeVote)){
-                bind++;
-                // this means that alice can claim that her vote was a different one
+    private static void changedCommitment(){
+        double count = 0;
+        for(int i = 0; i < combinations; i++){
+            if(v0[i].equals(v1[i])){
+                count++;
             }
-
-            String yesVote = hashFunction(1, testKString);
-            String noVote = hashFunction(0, nextKString(i));
-            if (yesVote.equals(noVote)) {
-                conc++;
-                // this means that the concealment is better
-                // might need to be tested 2^16^2 times :S
-            }
-
-
         }
-        System.out.println("Binding was broken " + bind + " times, i.e " + (100*bind/roofValue)+ " percent of the time.");
-        System.out.println("Concealment was broken " + conc + " times, i.e " + (1.0/conc) + " percent of the time.");
+        System.out.println("Binding can be broken at " + count + " places, i.e " + (100*count/combinations)+ " percent of the time.");
+    }
+
+    private static void concealBroken(){
+        double count = 0;
+        Iterator itr = v0v1.keySet().iterator();
+        while(itr.hasNext()){
+            if(v0v1.get(itr.next()) > 1){
+                count++;
+            }
+        }
+        System.out.println("Concealment was broken " + count + " times, i.e " + (1.0/count) + " percent of the time.");
+    }
+
+    private static void populate(){
+        for(int i = 0; i < combinations; i++){
+            String h0 = hashFunction(0, nextKString(i));
+            String h1 = hashFunction(1, nextKString(i));
+            v0[i] = h0;
+            v1[i] = h1;
+            if(!v0v1.containsKey(h0)){
+                v0v1.put(h0, 1);
+            }else{
+                v0v1.put(h0, v0v1.get(h0)+1);
+            }
+            if(!v0v1.containsKey(h1)){
+                v0v1.put(h1, 1);
+            }else{
+                v0v1.put(h1, v0v1.get(h1)+1);
+            }
+        }
     }
 
     // create k-string, bit length is always 16
