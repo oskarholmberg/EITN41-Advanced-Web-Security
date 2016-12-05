@@ -12,38 +12,37 @@ public class Main {
     // only input is if the vote was 0 or 1 from start, k-bit length is fix to 16
     public static void main(String[] args){
         x = Integer.valueOf(args[0]);
-        BigInteger v = new BigInteger("1");
+        int v = 1;
         int k = 16;
-        String kString = generateRandomKstring(k);
 
-        runProbabilities(v, kString);
+        runProbabilities(v);
+        String testString = nextKString(134135);
+        System.out.println(hashFunction(v, testString));
     }
 
     // main loop, tests with bit strings from
     // 0000000000000000 till 1111111111111111
-    private static void runProbabilities(BigInteger v, String kString){
+    private static void runProbabilities(int v){
         int roofValue = (int) Math.pow(2, 16);
         double bind = 0.0, conc = 0.0;
 
         for (int i = 0; i < roofValue; i++){
             String testKString = nextKString(i);
 
-            BigInteger correctVote = hashFunction(v, testKString);
+            int correctVote = hashFunction(v, testKString);
             // with vote 1-v (0 if 1, 1 if 0)
-            BigInteger changeVote = hashFunction((new BigInteger("1").add(v.negate())), testKString);
-            if (correctVote.compareTo(changeVote) == 0){
+            int changeVote = hashFunction((1-v), testKString);
+            if (correctVote == changeVote){
                 bind++;
                 // this means that alice can claim that her vote was a different one
             }
 
-            BigInteger yesVote = hashFunction(new BigInteger("1"), testKString);
-            for (int e = 0; e < roofValue; e++){
-                BigInteger noVote = hashFunction(new BigInteger("0"), nextKString(e));
-                if (e != i && yesVote.compareTo(noVote) == 0) {
+            int yesVote = hashFunction(1, testKString);
+                int noVote = hashFunction(0, nextKString(i));
+                if (yesVote == noVote) {
                     conc++;
                     // this means that the concealment is better
                     // might need to be tested 2^16^2 times :S
-                }
             }
 
 
@@ -61,24 +60,12 @@ public class Main {
         return kString;
     }
 
-    //create random k-string
-    private static String generateRandomKstring(int bitLength){
-        SplittableRandom random = new SplittableRandom();
-        String kString = Integer.toBinaryString(random.nextInt(0, (int) Math.pow(2, bitLength)));
-        while(kString.length() < 16){
-            kString = "0" + kString;
-        }
-        System.out.println(kString);
-        return kString;
-    }
-
     //simple hash function, big primes in order to be able to use longer truncations
     // (the primes are conjured from nothing, probably change them to something more reasonable (read: smaller))
-    private static BigInteger hashFunction(BigInteger v, String kString){
-        BigInteger hash = new BigInteger("31");
-        hash = hash.multiply(new BigInteger("47")).add(v);
-        hash = hash.multiply(new BigInteger("53").add(new BigInteger(kString)));
-        String hashString = hash.toString().substring(0, Integer.min(x, hash.toString().length()));
-        return new BigInteger(hashString);
+    private static int hashFunction(int v, String kString){
+        int hash = 31;
+        hash = hash * 47 + v;
+        hash = hash * 53 + kString.hashCode();
+        return Integer.valueOf(Integer.toString(hash).substring(0, x+1));
     }
 }
