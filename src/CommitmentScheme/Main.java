@@ -47,7 +47,7 @@ public class Main {
                 min = v0v1.get(key)[0] + v0v1.get(key)[1];
             }
         }
-        System.out.println("Guessing at the easiest target has a " + (100.0/min) + "% chance of success. " + 100*count/Math.pow(2, x) + "% of the hashes are compromised.");
+        System.out.println("Guessing at the easiest target has a " + (100.0/min) + "% chance of success. " + 100*count/v0v1.size() + "% of the hashes are compromised.");
     }
 
     private static void populate(){
