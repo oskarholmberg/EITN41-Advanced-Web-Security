@@ -28,14 +28,6 @@ public class Main {
         for (int i = 0; i < roofValue; i++){
             String testKString = nextKString(i);
 
-            BigInteger yesVote = hashFunction(new BigInteger("1"), testKString);
-            BigInteger noVote = hashFunction(new BigInteger("0"), testKString);
-            if (yesVote.compareTo(noVote) == 0){
-                conc++;
-                // this means that the concealment is better
-                // might need to be tested 2^16^2 times :S
-            }
-
             BigInteger correctVote = hashFunction(v, testKString);
             // with vote 1-v (0 if 1, 1 if 0)
             BigInteger changeVote = hashFunction((new BigInteger("1").add(v.negate())), testKString);
@@ -43,9 +35,21 @@ public class Main {
                 bind++;
                 // this means that alice can claim that her vote was a different one
             }
+
+            BigInteger yesVote = hashFunction(new BigInteger("1"), testKString);
+            for (int e = 0; e < roofValue; e++){
+                BigInteger noVote = hashFunction(new BigInteger("0"), nextKString(e));
+                if (e != i && yesVote.compareTo(noVote) == 0) {
+                    conc++;
+                    // this means that the concealment is better
+                    // might need to be tested 2^16^2 times :S
+                }
+            }
+
+
         }
         System.out.println("Binding was broken " + bind + " times, i.e " + (100*bind/roofValue)+ " percent of the time.");
-        System.out.println("Concealment was broken " + conc + " times, i.e " + (100*conc/roofValue)+ " percent of the time.");
+        System.out.println("Concealment was broken " + conc + " times, i.e " + (100*conc/Math.pow(roofValue,2))+ " percent of the time.");
     }
 
     // create k-string, bit length is always 16
@@ -71,9 +75,9 @@ public class Main {
     //simple hash function, big primes in order to be able to use longer truncations
     // (the primes are conjured from nothing, probably change them to something more reasonable (read: smaller))
     private static BigInteger hashFunction(BigInteger v, String kString){
-        BigInteger hash = new BigInteger("1601");
-        hash = hash.multiply(new BigInteger("1153")).add(v);
-        hash = hash.multiply(new BigInteger("2357").add(new BigInteger(kString)));
+        BigInteger hash = new BigInteger("31");
+        hash = hash.multiply(new BigInteger("47")).add(v);
+        hash = hash.multiply(new BigInteger("53").add(new BigInteger(kString)));
         String hashString = hash.toString().substring(0, Integer.min(x, hash.toString().length()));
         return new BigInteger(hashString);
     }
