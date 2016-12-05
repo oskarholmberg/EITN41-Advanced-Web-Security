@@ -29,17 +29,17 @@ public class Main {
         for (int i = 0; i < roofValue; i++){
             String testKString = nextKString(i);
 
-            int correctVote = hashFunction(v, testKString);
+            String correctVote = hashFunction(v, testKString);
             // with vote 1-v (0 if 1, 1 if 0)
-            int changeVote = hashFunction((1-v), testKString);
-            if (correctVote == changeVote){
+            String changeVote = hashFunction((1-v), testKString);
+            if (correctVote.equals(changeVote)){
                 bind++;
                 // this means that alice can claim that her vote was a different one
             }
 
-            int yesVote = hashFunction(1, testKString);
-            int noVote = hashFunction(0, nextKString(i));
-                if (yesVote == noVote) {
+            String yesVote = hashFunction(1, testKString);
+            String noVote = hashFunction(0, nextKString(i));
+                if (yesVote.equals(noVote)) {
                     conc++;
                     // this means that the concealment is better
                     // might need to be tested 2^16^2 times :S
@@ -48,7 +48,7 @@ public class Main {
 
         }
         System.out.println("Binding was broken " + bind + " times, i.e " + (100*bind/roofValue)+ " percent of the time.");
-        System.out.println("Concealment was broken " + conc + " times, i.e " + (100*conc/Math.pow(roofValue,2))+ " percent of the time.");
+        System.out.println("Concealment was broken " + conc + " times, i.e " + (1.0/conc) + " percent of the time.");
     }
 
     // create k-string, bit length is always 16
@@ -62,8 +62,9 @@ public class Main {
 
     //simple hash function, big primes in order to be able to use longer truncations
     // (the primes are conjured from nothing, probably change them to something more reasonable (read: smaller))
-    private static int hashFunction(int v, String kString){
+    private static String hashFunction(int v, String kString){
         int hash = 53 * Math.abs((kString + v).hashCode());
-        return Integer.valueOf(Integer.toString(hash).substring(0, Integer.min(x+1, Integer.toString(hash).length())));
+        String s = Integer.toBinaryString(hash);
+        return s.substring(0, Integer.min(x+1, s.length()));
     }
 }
