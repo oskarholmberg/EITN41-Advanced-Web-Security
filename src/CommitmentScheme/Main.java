@@ -10,6 +10,7 @@ public class Main {
     // only input is if the vote was 0 or 1 from start, k-bit length is fix to 16
     public static void main(String[] args){
         BigInteger v = new BigInteger(args[0]);
+        BigInteger x = new BigInteger(args[1]);
         int k = 16;
         String kString = generateRandomKstring(k);
 
