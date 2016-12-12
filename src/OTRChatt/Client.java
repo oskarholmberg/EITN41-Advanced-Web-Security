@@ -1,17 +1,15 @@
 package OTRChatt;
 
-
-import com.sun.org.apache.xpath.internal.SourceTree;
-
 import java.net.*;
 import java.io.*;
 import java.math.*;
 import java.security.MessageDigest;
-import java.sql.SQLOutput;
 import java.util.*;
 
 class Client {
+    static BigInteger message;
     public static void main(String[] args) {
+        message = new BigInteger(args[0], 16);
         new Client().run();
     }
 
@@ -87,10 +85,10 @@ class Client {
             System.out.println("RECEIVED: Qa = " + Qa);
             //Send Qb
             //Generate shared secret
-            byte[] gxy = toUnassigned(g_x1.modPow(x2, p).toByteArray());
+            BigInteger gxy = g_x1.modPow(x2, p);
             byte[] pass = "eitn41 <3".getBytes();
             MessageDigest md = MessageDigest.getInstance("SHA-1");
-            md.update(concat(gxy, pass));
+            md.update(concat(toUnassigned(gxy.toByteArray()), pass));
             BigInteger y = new BigInteger(1, md.digest());
             BigInteger Qb = g.modPow(b, p).multiply(g2.modPow(y, p));
             out.println(Qb.toString(16));
@@ -106,6 +104,13 @@ class Client {
             checkAck(in.readLine());
             System.out.println("Authentication successful!");
 
+            // Send message
+            BigInteger encrMsg = message.xor(gxy);
+            out.println(encrMsg.toString(16));
+            System.out.println("SENT: Message "+ message.toString(16) + " as " + encrMsg.toString(16));
+
+            //Get response
+            System.out.println("RECEIVED: Answer = " + in.readLine());
 
             client.close();
         } catch (IOException e) {
@@ -130,6 +135,9 @@ class Client {
     }
 
     private byte[] toUnassigned(byte[] a){
+        if(a[0] == 0){
+            return Arrays.copyOfRange(a, 1, a.length);
+        }
         return a;
     }
 }
