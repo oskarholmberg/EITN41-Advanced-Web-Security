@@ -1,10 +1,10 @@
 package SignatureCalc;
 
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 import javax.xml.bind.DatatypeConverter;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 
@@ -13,13 +13,14 @@ import java.util.ArrayList;
  */
 public class Main {
     public static void main(String[] args) {
-        String address = "https://eitn41.eit.lth.se:3119/ha4/addgrade.php?name=" + args[0] + "&grade=" + args[1] + "&signature=";
-        URL url;
+        String address = "/ha4/addgrade.php?name=" + args[0] + "&grade=" + args[1] + "&signature=";
 
 
         try {
 
-            HttpsURLConnection con;
+
+            PrintWriter out;
+            BufferedReader in;
 
             String signature = "";
 
@@ -27,52 +28,54 @@ public class Main {
                 int[] times = new int[16];
                 int lastSize = 0;
                 int loopCount = 0;
-                while(loopCount < 16){
+                boolean nextHexFound = false;
+                while(!nextHexFound && loopCount < 16){
 
                     String testHex = Integer.toHexString(loopCount);
 
-                    url = new URL(address + signature + testHex);
-                    con = (HttpsURLConnection) url.openConnection();
+
+                    SSLSocketFactory fac = (SSLSocketFactory) SSLSocketFactory.getDefault();
+                    SSLSocket socket = (SSLSocket) fac.createSocket("eitn41.eit.lth.se", 3119);
+                    socket.startHandshake();
+
+                    out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())));
+                    in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
                     long currentTime = System.currentTimeMillis();
+                    out.println("GET " + address+signature+testHex);
+                    out.println();
+                    out.flush();
 
-                    BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                    String line, result = "";
+                    while((line = in.readLine()) != null){
+                        result+=line;
+                    }
+                    out.close();
+                    in.close();
+                    socket.close();
 
                     times[loopCount] = (int) (System.currentTimeMillis() - currentTime);
 
-                    String result = "";
-                    String line;
-
-
-                    while ((line = br.readLine()) != null) {
-                        result += line;
-                    }
-                    br.close();
-
-
-
-                    if (Integer.valueOf(result.trim()) != 0) {
-                        System.out.println("Signature found: " + signature + testHex);
-                    }
-                    int sum = 0;
-                    for(Integer e : times){
-                        sum += e;
-                        if(sum-lastSize > 25*signature.length()){
-                            lastSize = sum;
-                            loopCount++;
+                    for (int i = 0; i < times.length; i++){
+                        int count = 0;
+                        for (int e = 0; e < times.length; e++){
+                            int neg = times[i] - times[e];
+                            if (i!=e && neg > 25 && !(neg > 70) && times[e] != 0 && times[i] != 0)
+                                count++;
                         }
+                        if (count > 5){
+                            nextHexFound = true;
+                            signature+=Integer.toHexString(i);
+                            break;
+                        }
+
                     }
+                    loopCount++;
                 }
-                int largestTime = -1, index = -1;
-                for (int i = 0; i < times.length; i++){
-                    System.out.print(i + ": " + times[i] + " ");
-                    if (times[i] > largestTime && times[i] < 150 * (signature.length() +1)) {
-                        largestTime = times[i];
-                        index = i;
-                    }
+                for (int e = 0; e < times.length; e++){
+                    System.out.print(Integer.toHexString(e) + ": " + times[e] + "  ");
                 }
                 System.out.println();
-                signature+=Integer.toHexString(index);
                 System.out.println("Current signature: " + signature);
             }
 
