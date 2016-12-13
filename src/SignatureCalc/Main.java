@@ -25,7 +25,7 @@ public class Main {
 
             while (signature.length() < 20) {
                 int[] times = new int[16];
-                int lastSize = Integer.MAX_VALUE;
+                int lastSize = 0;
                 int loopCount = 0;
                 while(loopCount < 16){
 
@@ -54,12 +54,14 @@ public class Main {
                     if (Integer.valueOf(result.trim()) != 0) {
                         System.out.println("Signature found: " + signature + testHex);
                     }
-                    loopCount++;
-                }
-                int sum = 0;
-                for(Integer e : times){
-                    sum += e;
-
+                    int sum = 0;
+                    for(Integer e : times){
+                        sum += e;
+                        if(sum-lastSize > 25*signature.length()){
+                            lastSize = sum;
+                            loopCount++;
+                        }
+                    }
                 }
                 int largestTime = -1, index = -1;
                 for (int i = 0; i < times.length; i++){
