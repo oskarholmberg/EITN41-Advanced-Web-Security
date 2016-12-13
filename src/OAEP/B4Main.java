@@ -5,13 +5,17 @@ package OAEP;
  */
 public class B4Main {
     public static void main(String[] args){
-        boolean encode = args[0].equals("encode");
-        String M, seed, EM;
-        if (encode) {
-            M = args[1];
-            seed = args[2];
-        } else {
-            EM = args[1];
+        switch (args[0]){
+            case "encode":
+                String M = args[1];
+                String seed = args[2];
+                break;
+            case "decode":
+                String EM = args[1];
+                break;
+            default:
+                throw new IllegalArgumentException("Input parameters wrong.");
+
         }
 
         
