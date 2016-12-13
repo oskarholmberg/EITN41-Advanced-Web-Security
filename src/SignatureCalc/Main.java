@@ -1,12 +1,9 @@
 package SignatureCalc;
 
-import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
-import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.net.*;
-import java.util.ArrayList;
 
 /**
  * Created by oskar on 2016-12-13.
@@ -23,10 +20,9 @@ public class Main {
             BufferedReader in;
 
             String signature = "";
-
+            System.out.print("Hacking signature: ");
             while (signature.length() < 20) {
                 int[] times = new int[16];
-                int lastSize = 0;
                 int loopCount = 0;
                 boolean nextHexFound = false;
                 while(!nextHexFound && loopCount < 16){
@@ -50,6 +46,10 @@ public class Main {
                     while((line = in.readLine()) != null){
                         result+=line;
                     }
+                    if(result.trim().equals("1")){
+                        System.out.println("\nSignature found! Use " + signature + " for infinite happiness!");
+                        System.exit(0);
+                    }
                     out.close();
                     in.close();
                     socket.close();
@@ -59,12 +59,13 @@ public class Main {
                     for (int i = 0; i < times.length; i++){
                         int count = 0;
                         for (int e = 0; e < times.length; e++){
-                            int neg = times[i] - times[e];
-                            if (i!=e && neg > 25 && !(neg > 70) && times[e] != 0 && times[i] != 0)
+                            int diff = times[i] - times[e];
+                            if (i!=e && diff > 20 && !(diff > 70) && times[e] != 0 && times[i] != 0)
                                 count++;
                         }
                         if (count > 5){
                             nextHexFound = true;
+                            System.out.print(Integer.toHexString(i));
                             signature+=Integer.toHexString(i);
                             break;
                         }
@@ -72,11 +73,6 @@ public class Main {
                     }
                     loopCount++;
                 }
-                for (int e = 0; e < times.length; e++){
-                    System.out.print(Integer.toHexString(e) + ": " + times[e] + "  ");
-                }
-                System.out.println();
-                System.out.println("Current signature: " + signature);
             }
 
 
