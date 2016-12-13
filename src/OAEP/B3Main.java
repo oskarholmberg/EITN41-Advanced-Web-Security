@@ -12,7 +12,7 @@ public class B3Main {
     public static void main(String[] args) {
         byte[] mfgSeed = DatatypeConverter.parseHexBinary(args[0]);
         int maskLen = Integer.valueOf(args[1]);
-        System.out.println("mfgSeed: " + mfgSeed);
+        System.out.println("mfgSeed: " + DatatypeConverter.printHexBinary(mfgSeed));
         System.out.println("maskLen: " + maskLen);
 
         try {

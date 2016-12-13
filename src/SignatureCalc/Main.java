@@ -25,7 +25,7 @@ public class Main {
             while (signature.length() < 20) {
                 int[] times = new int[16];
                 int loopCount = 0;
-                while(loopCount < 16){
+                while (loopCount < 16) {
 
                     String testHex = Integer.toHexString(loopCount);
 
@@ -53,17 +53,17 @@ public class Main {
                     }
                     loopCount++;
                 }
-                int sum = IntStream.of(times).sum();
-                int largestTime = -1, index = -1;
-                for (int i = 0; i < times.length; i++){
+                int avg = IntStream.of(times).sum() / 16, largest = 0;
+                int index = -1;
+                for (int i = 0; i < times.length; i++) {
                     System.out.print(Integer.toHexString(i) + ": " + times[i] + " ");
-                    if (times[i] > largestTime && (times[i]-sum/16)<35) {
-                        largestTime = times[i];
+                    if (times[i] > largest && times[i] - avg > 20 && times[i] - avg < 40) {
+                        largest = times[i];
                         index = i;
                     }
                 }
                 System.out.println();
-                signature+=Integer.toHexString(index);
+                if (index != -1) signature += Integer.toHexString(index);
                 System.out.println("Current signature: " + signature);
             }
 

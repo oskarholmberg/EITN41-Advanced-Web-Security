@@ -6,11 +6,11 @@ import java.math.*;
 import java.security.MessageDigest;
 import java.util.*;
 
-class Client {
+class OTRClient {
     static BigInteger message;
     public static void main(String[] args) {
         message = new BigInteger(args[0], 16);
-        new Client().run();
+        new OTRClient().run();
     }
 
     void run() {
