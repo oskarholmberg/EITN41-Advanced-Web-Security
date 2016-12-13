@@ -28,18 +28,17 @@ public class Main {
         }
 
         MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
-        sha1.update("dummystring".getBytes());
-        int hlen = sha1.digest().length;
-        byte[] T;
         byte[] result = new byte[0];
 
-        for (int i = 0; i <= 5; i++){
+        int i = 0;
+        while(result.length<maskLen){
             sha1.update(concatBytes(DatatypeConverter.parseHexBinary(mgfSeed), I2OSP(i, 4)));
             byte[] digest = sha1.digest();
             result = concatBytes(result, digest);
+            i++;
         }
 
-        T = new byte[maskLen];
+        byte[] T = new byte[maskLen];
         System.arraycopy(result, 0, T, 0, maskLen);
         return DatatypeConverter.printHexBinary(T);
     }
