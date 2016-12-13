@@ -7,22 +7,8 @@ import java.security.NoSuchAlgorithmException;
 /**
  * Created by erik on 12/12/16.
  */
-public class Main {
-    public static void main(String[] args) {
-        String mfgSeed = args[0];
-        int maskLen = Integer.valueOf(args[1]);
-        System.out.println("mfgSeed: " + mfgSeed);
-        System.out.println("maskLen: " + maskLen);
-
-        try {
-            System.out.println("Mask: " + mgf1(mfgSeed, maskLen));
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    private static String mgf1(String mgfSeed, int maskLen) throws NoSuchAlgorithmException {
+public class Mgf1 {
+    public static String mgf1(String mgfSeed, int maskLen) throws NoSuchAlgorithmException {
         if (maskLen > Math.pow(2, 32)) {
             throw new IllegalArgumentException("Mask Length too long");
         }
@@ -30,6 +16,8 @@ public class Main {
         MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
         byte[] result = new byte[0];
 
+
+        // as (maskLen/hLen - 1) is (almost) always a too small number, a while loop is used instead
         int i = 0;
         while(result.length<maskLen){
             sha1.update(concatBytes(DatatypeConverter.parseHexBinary(mgfSeed), I2OSP(i, 4)));
@@ -43,7 +31,7 @@ public class Main {
         return DatatypeConverter.printHexBinary(T);
     }
 
-    private static byte[] concatBytes(byte[] a, byte[] b){
+    public static byte[] concatBytes(byte[] a, byte[] b){
         int aLen = a.length;
         int bLen = b.length;
         byte[] c = new byte[aLen+bLen];
@@ -58,7 +46,7 @@ public class Main {
      * @param xLen , length of the resulting octed string
      * @return x's corresponding octet string of length xLen
      */
-    private static byte[] I2OSP(int x, int xLen) {
+    public static byte[] I2OSP(int x, int xLen) {
         if (x >= Math.pow(256, xLen)) throw new IllegalArgumentException("Integer too large");
         byte[] output = new byte[xLen];
         for (int i = xLen - 1; i >= 0; i--) {
