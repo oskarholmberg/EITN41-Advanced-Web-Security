@@ -8,7 +8,7 @@ import java.security.NoSuchAlgorithmException;
  * Created by erik on 12/12/16.
  */
 public class Mgf1 {
-    public static String mgf1(String mgfSeed, int maskLen) throws NoSuchAlgorithmException {
+    public static byte[] mgf1(byte[] mgfSeed, int maskLen) throws NoSuchAlgorithmException {
         if (maskLen > Math.pow(2, 32)) {
             throw new IllegalArgumentException("Mask Length too long");
         }
@@ -20,7 +20,7 @@ public class Mgf1 {
         // as (maskLen/hLen - 1) is (almost) always a too small number, a while loop is used instead
         int i = 0;
         while(result.length<maskLen){
-            sha1.update(concatBytes(DatatypeConverter.parseHexBinary(mgfSeed), I2OSP(i, 4)));
+            sha1.update(concatBytes(mgfSeed, I2OSP(i, 4)));
             byte[] digest = sha1.digest();
             result = concatBytes(result, digest);
             i++;
@@ -28,16 +28,24 @@ public class Mgf1 {
 
         byte[] T = new byte[maskLen];
         System.arraycopy(result, 0, T, 0, maskLen);
-        return DatatypeConverter.printHexBinary(T);
+        return T;
     }
 
-    public static byte[] concatBytes(byte[] a, byte[] b){
+    private static byte[] concatBytes(byte[] a, byte[] b){
         int aLen = a.length;
         int bLen = b.length;
         byte[] c = new byte[aLen+bLen];
         System.arraycopy(a, 0, c, 0, aLen);
         System.arraycopy(b, 0, c, aLen, bLen);
         return c;
+    }
+
+    public static byte[] concatBytes(byte[] ... bytes){
+        byte[] result = new byte[0];
+        for (int i = 0; i < bytes.length; i++){
+            result = concatBytes(result, bytes[i]);
+        }
+        return result;
     }
     /**
      * Converts a nonnegative integer to an octet string of a specified length
