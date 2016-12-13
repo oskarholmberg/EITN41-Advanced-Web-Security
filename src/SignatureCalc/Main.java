@@ -1,12 +1,11 @@
 package SignatureCalc;
 
 import javax.net.ssl.HttpsURLConnection;
-import javax.xml.bind.DatatypeConverter;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.*;
-import java.util.ArrayList;
+import java.util.stream.IntStream;
 
 /**
  * Created by oskar on 2016-12-13.
@@ -25,7 +24,6 @@ public class Main {
 
             while (signature.length() < 20) {
                 int[] times = new int[16];
-                int lastSize = 0;
                 int loopCount = 0;
                 while(loopCount < 16){
 
@@ -49,24 +47,17 @@ public class Main {
                     }
                     br.close();
 
-
-
                     if (Integer.valueOf(result.trim()) != 0) {
                         System.out.println("Signature found: " + signature + testHex);
+                        System.exit(0);
                     }
-                    int sum = 0;
-                    for(Integer e : times){
-                        sum += e;
-                        if(sum-lastSize > 25*signature.length()){
-                            lastSize = sum;
-                            loopCount++;
-                        }
-                    }
+                    loopCount++;
                 }
+                int sum = IntStream.of(times).sum();
                 int largestTime = -1, index = -1;
                 for (int i = 0; i < times.length; i++){
-                    System.out.print(i + ": " + times[i] + " ");
-                    if (times[i] > largestTime && times[i] < 150 * (signature.length() +1)) {
+                    System.out.print(Integer.toHexString(i) + ": " + times[i] + " ");
+                    if (times[i] > largestTime && (times[i]-sum/16)<35) {
                         largestTime = times[i];
                         index = i;
                     }
