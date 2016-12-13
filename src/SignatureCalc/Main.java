@@ -25,15 +25,20 @@ public class Main {
 
             while (signature.length() < 20) {
                 int[] times = new int[16];
-                for (int i = 0; i < 16; i++) {
+                int lastSize = Integer.MAX_VALUE;
+                int loopCount = 0;
+                while(loopCount < 16){
 
-                    String testHex = Integer.toHexString(i);
+                    String testHex = Integer.toHexString(loopCount);
 
                     url = new URL(address + signature + testHex);
                     con = (HttpsURLConnection) url.openConnection();
+
                     long currentTime = System.currentTimeMillis();
 
                     BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+
+                    times[loopCount] = (int) (System.currentTimeMillis() - currentTime);
 
                     String result = "";
                     String line;
@@ -44,16 +49,28 @@ public class Main {
                     }
                     br.close();
 
-                    times[i] = (int) (System.currentTimeMillis() - currentTime);
 
 
                     if (Integer.valueOf(result.trim()) != 0) {
-                        System.out.println("Signature found!");
+                        System.out.println("Signature found: " + signature + testHex);
+                    }
+                    loopCount++;
+                }
+                int sum = 0;
+                for(Integer e : times){
+                    sum += e;
+
+                }
+                int largestTime = -1, index = -1;
+                for (int i = 0; i < times.length; i++){
+                    System.out.print(i + ": " + times[i] + " ");
+                    if (times[i] > largestTime && times[i] < 150 * (signature.length() +1)) {
+                        largestTime = times[i];
+                        index = i;
                     }
                 }
-                for (int i = 0; i < times.length; i++){
-                    System.out.print(i + ": " + times[i] + "  ");
-                }
+                System.out.println();
+                signature+=Integer.toHexString(index);
                 System.out.println("Current signature: " + signature);
             }
 
