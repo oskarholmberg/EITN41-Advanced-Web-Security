@@ -1,5 +1,6 @@
 package OAEP;
 
+import javax.xml.bind.DatatypeConverter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -7,60 +8,64 @@ import java.security.NoSuchAlgorithmException;
  * Created by erik on 12/12/16.
  */
 public class Main {
-    public static void main(String[] args){
+    public static void main(String[] args) {
         String mfgSeed = args[0];
         int maskLen = Integer.valueOf(args[1]);
         System.out.println("mfgSeed: " + mfgSeed);
         System.out.println("maskLen: " + maskLen);
-        System.out.println("C59E86CAA7340844C56BAEA42056F6F61A7BA9E1".getBytes().length);
 
         try {
-            System.out.println(mgf1(mfgSeed, maskLen));
+            System.out.println("Mask: " + mgf1(mfgSeed, maskLen));
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
 
     }
 
-    private static String mgf1(String mfgSeed, int maskLen) throws NoSuchAlgorithmException {
+    private static String mgf1(String mgfSeed, int maskLen) throws NoSuchAlgorithmException {
         if (maskLen > Math.pow(2, 32)) {
             throw new IllegalArgumentException("Mask Length too long");
         }
 
-
         MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
         sha1.update("dummystring".getBytes());
         int hlen = sha1.digest().length;
-        String counter = "dummystring";
-        byte[] T = new byte[hlen];
-        byte[] result = new byte[hlen];
-        System.out.println("amount of loops: " + (maskLen/hlen-1));
+        byte[] T;
+        byte[] result = new byte[0];
 
-        for (int i = 0; i <= (maskLen/hlen - 1); i++){
-            System.out.println("Nbr run: " + i);
-            sha1.reset();
-            sha1.update(mfgSeed.getBytes());
-            sha1.update(counter.getBytes());
+        for (int i = 0; i <= 5; i++){
+            sha1.update(concatBytes(DatatypeConverter.parseHexBinary(mgfSeed), I2OSP(i, 4)));
             byte[] digest = sha1.digest();
-            result = new byte[digest.length + T.length];
-            System.arraycopy(T, 0, result, 0, T.length);
-            System.arraycopy(digest, 0, result, T.length, digest.length);
+            result = concatBytes(result, digest);
         }
 
-        T = new byte[hlen];
-        System.out.println("T length: " + T.length);
+        T = new byte[maskLen];
         System.arraycopy(result, 0, T, 0, maskLen);
-        return bytesToHex(T);
+        return DatatypeConverter.printHexBinary(T);
     }
 
-    private static String bytesToHex(byte[] bytes){
-        char[] hexArray = "0123456789ABCDEF".toCharArray();
-        char[] hexChars = new char[bytes.length * 2];
-        for ( int j = 0; j < bytes.length; j++ ) {
-            int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = hexArray[v >>> 4];
-            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+    private static byte[] concatBytes(byte[] a, byte[] b){
+        int aLen = a.length;
+        int bLen = b.length;
+        byte[] c = new byte[aLen+bLen];
+        System.arraycopy(a, 0, c, 0, aLen);
+        System.arraycopy(b, 0, c, aLen, bLen);
+        return c;
+    }
+    /**
+     * Converts a nonnegative integer to an octet string of a specified length
+     *
+     * @param x    , nonnegative integer to be converted
+     * @param xLen , length of the resulting octed string
+     * @return x's corresponding octet string of length xLen
+     */
+    private static byte[] I2OSP(int x, int xLen) {
+        if (x >= Math.pow(256, xLen)) throw new IllegalArgumentException("Integer too large");
+        byte[] output = new byte[xLen];
+        for (int i = xLen - 1; i >= 0; i--) {
+            int shift = 8*i;
+            output[xLen-i-1] = (byte) (x >>> shift);
         }
-        return new String(hexChars);
+        return output;
     }
 }
