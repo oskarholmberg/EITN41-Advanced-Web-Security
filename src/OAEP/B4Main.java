@@ -5,7 +5,7 @@ package OAEP;
  */
 public class B4Main {
     public static void main(String[] args){
-        boolean encode = args[0].equals("encode");
+        boolean encode = args[0] == "encode";
         String M, seed, EM;
         if (encode) {
             M = args[1];
@@ -14,6 +14,5 @@ public class B4Main {
             EM = args[1];
         }
 
-        
     }
 }
