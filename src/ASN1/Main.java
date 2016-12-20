@@ -3,6 +3,7 @@ package ASN1;
 import javax.xml.bind.DatatypeConverter;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 
 /**
@@ -36,13 +37,36 @@ public class Main {
             for (byte[] b : derCodes){
                 totLength+=b.length;
             }
-            byte[] content = new byte[5+totLength];
-            content[0] = 0x30;
-            content[1] = (byte) (3+totLength);
-            content[2] = 0x02;
-            content[3] = 0x01;
-            content[4] = 0x00;
-            int offset = 5;
+            byte[] content;
+            int offset = 0;
+
+            System.out.println(3+totLength);
+            if (3+totLength > 127){
+
+                byte[] contentBytes = new BigInteger(Integer.toString(3+totLength)).toByteArray();
+                if (contentBytes[0] == 0){
+                    contentBytes = Arrays.copyOfRange(contentBytes, 1, contentBytes.length);
+                }
+                content = new byte[1+1+3+contentBytes.length+totLength];
+                content[0] = 0x30;
+                offset++;
+                content[1] = (byte) (0x80 | contentBytes.length);
+                offset++;
+                System.arraycopy(contentBytes, 0, content, offset, contentBytes.length);
+                offset+=contentBytes.length;
+            } else {
+                content = new byte[5+totLength];
+                content[0] = 0x30;
+                offset++;
+                content[1] = (byte) (3 + totLength);
+                offset++;
+            }
+            content[offset] = 0x02;
+            offset++;
+            content[offset] = 0x01;
+            offset++;
+            content[offset] = 0x00;
+            offset++;
             for (byte[] b : derCodes){
                 System.arraycopy(b, 0, content, offset, b.length);
                 offset+=b.length;
