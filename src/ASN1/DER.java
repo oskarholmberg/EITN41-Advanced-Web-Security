@@ -14,19 +14,27 @@ public class DER {
      * @return DER encoding of integer.
      */
     public static byte[] encode(BigInteger value){
-        String code = value.toString();
-        if(code.length() > Math.pow(2, 1008)-1){
+        return value.toByteArray().length > 127 ? encodeLong(value) : encodeShort(value);
+    }
+
+    private static byte[] encodeShort(BigInteger value){
+        byte[] der = new byte[1+1+value.toByteArray().length];
+        der[0] = 0x02;
+        der[1] = (byte) value.toByteArray().length;
+        System.arraycopy(value.toByteArray(), 0, der, 2, value.toByteArray().length);
+        return der;
+    }
+
+    private static byte[] encodeLong(BigInteger value){
+        if(value.compareTo(new BigInteger("2").pow(1008).subtract(new BigInteger("1"))) > 0) {
             throw new IllegalArgumentException("Encoding error. Integer too large.");
         }
-        String hexcode = value.toString(16);
-        int contentOctets = hexcode.length()/2;
+        int contentOctets = value.toByteArray().length;
         int lengthOctets = (int) Math.ceil(Integer.toString(contentOctets, 16).length()/2.0);
         byte[] der = new byte[1+1+lengthOctets+contentOctets];
         der[0] = 0x02;
         der[1] = (byte) (0x80 | lengthOctets);
         BigInteger contentBytes = new BigInteger(Integer.toString(contentOctets));
-        System.out.println(contentBytes.toByteArray().length);
-        System.out.println(value.toByteArray().length);
         System.arraycopy(contentBytes.toByteArray(), 0, der, 2, contentBytes.toByteArray().length);
         System.arraycopy(value.toByteArray(), 0, der, 1+1+contentBytes.toByteArray().length, value.toByteArray().length);
 
