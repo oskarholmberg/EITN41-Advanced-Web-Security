@@ -1,6 +1,8 @@
 package ASN1;
 
+import javax.xml.bind.DatatypeConverter;
 import java.math.BigInteger;
+import java.util.Arrays;
 
 /**
  * Created by oskar on 2016-12-20.
@@ -28,13 +30,16 @@ public class DER {
         if(value.compareTo(new BigInteger("2").pow(1008).subtract(new BigInteger("1"))) < 0) {
             throw new IllegalArgumentException("Encoding error. Integer too large.");
         }
-        BigInteger contentBytes = new BigInteger(Integer.toString(value.toByteArray().length));
-        BigInteger lengthOctets = new BigInteger(Integer.toString(contentBytes.toByteArray().length));
-        byte[] der = new byte[1+1+lengthOctets.intValue() + contentBytes.intValue()];
+        byte[] valueBytes = value.toByteArray();
+        byte[] contentBytes = new BigInteger(Integer.toString(valueBytes.length)).toByteArray();
+        if (contentBytes[0] == 0){
+            contentBytes = Arrays.copyOfRange(contentBytes, 1, contentBytes.length);
+        }
+        byte[] der = new byte[1 + 1 + contentBytes.length + valueBytes.length];
         der[0] = 0x02;
-        der[1] = (byte) (0x80 | lengthOctets.intValue());
-        System.arraycopy(contentBytes.toByteArray(), 0, der, 2, contentBytes.toByteArray().length);
-        System.arraycopy(value.toByteArray(), 0, der, 1+1+contentBytes.toByteArray().length, value.toByteArray().length);
+        der[1] = (byte) (0x80 | contentBytes.length);
+        System.arraycopy(contentBytes, 0, der, 2, contentBytes.length);
+        System.arraycopy(valueBytes, 0, der, 2+contentBytes.length, valueBytes.length);
 
         return der;
     }
