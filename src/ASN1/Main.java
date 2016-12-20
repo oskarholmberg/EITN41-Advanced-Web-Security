@@ -8,6 +8,6 @@ import java.math.BigInteger;
  */
 public class Main {
     public static void main(String[] args){
-        System.out.println(DatatypeConverter.printHexBinary(DER.encode(new BigInteger(args[0]))));
+        System.out.println(DatatypeConverter.printHexBinary(DER.encode(new BigInteger(args[0].replace(" ", "")))));
     }
 }

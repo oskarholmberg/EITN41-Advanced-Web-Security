@@ -1,7 +1,6 @@
 package ASN1;
 
 import java.math.BigInteger;
-import java.util.Arrays;
 
 /**
  * Created by oskar on 2016-12-20.
@@ -26,15 +25,14 @@ public class DER {
     }
 
     private static byte[] encodeLong(BigInteger value){
-        if(value.compareTo(new BigInteger("2").pow(1008).subtract(new BigInteger("1"))) > 0) {
+        if(value.compareTo(new BigInteger("2").pow(1008).subtract(new BigInteger("1"))) < 0) {
             throw new IllegalArgumentException("Encoding error. Integer too large.");
         }
-        int contentOctets = value.toByteArray().length;
-        int lengthOctets = (int) Math.ceil(Integer.toString(contentOctets, 16).length()/2.0);
-        byte[] der = new byte[1+1+lengthOctets+contentOctets];
+        BigInteger contentBytes = new BigInteger(Integer.toString(value.toByteArray().length));
+        BigInteger lengthOctets = new BigInteger(Integer.toString(contentBytes.toByteArray().length));
+        byte[] der = new byte[1+1+lengthOctets.intValue() + contentBytes.intValue()];
         der[0] = 0x02;
-        der[1] = (byte) (0x80 | lengthOctets);
-        BigInteger contentBytes = new BigInteger(Integer.toString(contentOctets));
+        der[1] = (byte) (0x80 | lengthOctets.intValue());
         System.arraycopy(contentBytes.toByteArray(), 0, der, 2, contentBytes.toByteArray().length);
         System.arraycopy(value.toByteArray(), 0, der, 1+1+contentBytes.toByteArray().length, value.toByteArray().length);
 
